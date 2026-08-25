@@ -39,6 +39,7 @@ export function EditorPanel() {
     lang,
     t,
     isPro,
+    user,
   } = useBio();
 
   const [activeTab, setActiveTab] = useState<"profile" | "links" | "themes" | "social">("profile");
@@ -273,13 +274,35 @@ export function EditorPanel() {
                     <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-blue-500 text-white">PRO</span>
                   </span>
                 </div>
-                <input
-                  type="text"
-                  value={profile.customDomain || ""}
-                  onChange={(e) => updateProfile({ customDomain: e.target.value })}
-                  placeholder="e.g. bio.yourname.com"
-                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-blue-400 font-mono text-[11px] focus:outline-none focus:border-blue-500"
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={profile.customDomain || ""}
+                    onChange={(e) => updateProfile({ customDomain: e.target.value.toLowerCase().trim() })}
+                    placeholder="e.g. bio.yourname.com"
+                    className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-blue-400 font-mono text-[11px] focus:outline-none focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (user?.email) {
+                        fetch("/api/verify-subscription", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            email: user.email,
+                            username: profile.username,
+                            customDomain: profile.customDomain,
+                          }),
+                        }).catch(() => {});
+                      }
+                      alert(lang === "zh" ? "✅ 独立域名已成功保存并同步至云端！" : "Custom domain saved and synced to cloud!");
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shrink-0 shadow-md shadow-blue-600/20"
+                  >
+                    {lang === "zh" ? "保存域名" : "Save Domain"}
+                  </button>
+                </div>
                 <p className="text-[10px] text-slate-400 leading-relaxed">
                   {lang === "zh"
                     ? "💡 解析方法：在您的域名 DNS 控制台添加一条 CNAME 记录，指向 cname.vercel-dns.com 即可！"

@@ -6,19 +6,52 @@ import { BioRenderer } from "@/components/BioRenderer";
 import { DEFAULT_PROFILE } from "@/lib/defaultProfile";
 import { UserProfile } from "@/lib/types";
 
+import { supabase } from "@/lib/supabaseClient";
+
 function PublicBioContent() {
   const searchParams = useSearchParams();
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
 
   useEffect(() => {
-    try {
-      // If data is in localStorage or URL
-      const savedProfile = localStorage.getItem("snapbio_profile_v2");
-      if (savedProfile) {
-        setProfile(JSON.parse(savedProfile));
+    const u = searchParams.get("u");
+    const domain = searchParams.get("domain");
+
+    if (u || domain) {
+      let query = supabase.from("profiles").select("*");
+      if (domain) {
+        query = query.eq("custom_domain", domain);
+      } else if (u) {
+        query = query.eq("username", u);
       }
-    } catch {
-      // Fallback to default
+
+      query.limit(1).then(({ data, error }) => {
+        if (!error && data && data.length > 0) {
+          const row = data[0];
+          if (row.bio_data && Object.keys(row.bio_data).length > 0) {
+            setProfile({
+              ...row.bio_data,
+              removeWatermark: Boolean(row.is_pro),
+            });
+          } else {
+            setProfile((prev) => ({
+              ...prev,
+              username: row.username || prev.username,
+              displayName: row.display_name || row.username || prev.displayName,
+              customDomain: row.custom_domain,
+              removeWatermark: Boolean(row.is_pro),
+            }));
+          }
+        }
+      });
+    } else {
+      try {
+        const savedProfile = localStorage.getItem("snapbio_profile_v2");
+        if (savedProfile) {
+          setProfile(JSON.parse(savedProfile));
+        }
+      } catch {
+        // Fallback to default
+      }
     }
   }, [searchParams]);
 

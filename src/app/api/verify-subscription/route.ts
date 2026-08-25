@@ -46,24 +46,35 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const email = searchParams.get("email");
   const username = searchParams.get("username");
+  const userId = searchParams.get("userId");
 
-  if (!email && !username) {
-    return NextResponse.json({ error: "Provide email or username" }, { status: 400 });
+  if (!email && !username && !userId) {
+    return NextResponse.json({ error: "Provide email, username, or userId" }, { status: 400 });
   }
 
+  const cleanEmail = email ? email.toLowerCase().trim() : "";
+  const prefix = cleanEmail ? cleanEmail.split("@")[0] : "";
+
   let query = supabaseAdmin.from("profiles").select("*");
-  if (email) query = query.eq("stripe_customer_email", email);
-  else if (username) query = query.eq("username", username);
 
-  const { data, error } = await query.single();
+  if (userId) {
+    query = query.eq("user_id", userId);
+  } else if (cleanEmail) {
+    query = query.or(`stripe_customer_email.ilike.${cleanEmail},username.ilike.${prefix},username.ilike.${cleanEmail}`);
+  } else if (username) {
+    query = query.eq("username", username);
+  }
 
-  if (error || !data) {
+  const { data, error } = await query.limit(1);
+
+  if (error || !data || data.length === 0) {
     return NextResponse.json({ isPro: false }, { status: 200 });
   }
 
+  const record = data[0];
   return NextResponse.json({
-    isPro: data.is_pro || false,
-    proTier: data.pro_tier || "free",
-    username: data.username,
+    isPro: Boolean(record.is_pro),
+    proTier: record.pro_tier || "free",
+    username: record.username,
   });
 }

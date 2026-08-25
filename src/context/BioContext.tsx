@@ -88,7 +88,7 @@ export function BioProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
-        checkUserProStatus(session.user.email || "");
+        checkUserProStatus(session.user.email || "", session.user.id);
       } else {
         setIsPro(false);
         setProEmail(undefined);
@@ -98,7 +98,7 @@ export function BioProvider({ children }: { children: React.ReactNode }) {
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user);
-        checkUserProStatus(session.user.email || "");
+        checkUserProStatus(session.user.email || "", session.user.id);
       } else {
         setUser(null);
         setIsPro(false);
@@ -111,13 +111,38 @@ export function BioProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const checkUserProStatus = async (email: string) => {
-    if (!email) {
+  const checkUserProStatus = async (email: string, userId?: string) => {
+    if (!email && !userId) {
       setIsPro(false);
       return;
     }
+
     try {
-      const res = await fetch(`/api/verify-subscription?email=${encodeURIComponent(email)}`);
+      // 1. Direct Supabase Query
+      let query = supabase.from("profiles").select("is_pro, pro_tier, username");
+      if (userId) {
+        query = query.eq("user_id", userId);
+      } else if (email) {
+        const prefix = email.split("@")[0];
+        query = query.or(`stripe_customer_email.ilike.${email},username.ilike.${prefix},username.ilike.${email}`);
+      }
+
+      const { data: dbData } = await query.limit(1);
+
+      if (dbData && dbData.length > 0 && dbData[0].is_pro) {
+        setIsPro(true);
+        setProEmail(email);
+        localStorage.setItem(PRO_STORAGE_KEY, JSON.stringify({ isPro: true, email }));
+        setProfile((prev) => ({ ...prev, removeWatermark: true, customBadge: prev.customBadge || "PRO Member 💎" }));
+        return;
+      }
+
+      // 2. Fallback to server API
+      const params = new URLSearchParams();
+      if (email) params.set("email", email);
+      if (userId) params.set("userId", userId);
+
+      const res = await fetch(`/api/verify-subscription?${params.toString()}`);
       const data = await res.json();
       if (data.isPro) {
         setIsPro(true);

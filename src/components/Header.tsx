@@ -9,7 +9,7 @@ import { ShareModal } from "./ShareModal";
 import { ProUpgradeModal } from "./ProUpgradeModal";
 import { TemplatesModal } from "./TemplatesModal";
 import { AuthModal } from "./AuthModal";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Mail } from "lucide-react";
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -63,6 +63,16 @@ export function Header() {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2.5">
+            {/* Contact Support */}
+            <a
+              href="mailto:support@puretoolhub.com"
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white text-xs font-semibold transition-all"
+              title="Official Support"
+            >
+              <Mail className="w-3.5 h-3.5 text-blue-400" />
+              <span>{lang === "zh" ? "支持" : "Support"}</span>
+            </a>
+
             {/* Templates Trigger */}
             <button
               onClick={() => setIsTemplatesOpen(true)}

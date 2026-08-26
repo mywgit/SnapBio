@@ -11,6 +11,7 @@ import {
   Percent,
   Check,
   ShieldCheck,
+  Mail,
 } from "lucide-react";
 import { useBio } from "@/context/BioContext";
 
@@ -253,6 +254,18 @@ export function ProUpgradeModal({ isOpen, onClose }: ProUpgradeModalProps) {
                   )}
                 </form>
               )}
+            </div>
+
+            {/* Official Support Email */}
+            <div className="pt-2 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 relative z-10">
+              <Mail className="w-3.5 h-3.5 text-blue-400" />
+              <span>{lang === "zh" ? "需要人工支持或订阅疑问？" : "Need help with subscription?"}</span>
+              <a
+                href="mailto:support@puretoolhub.com"
+                className="text-blue-400 hover:text-blue-300 font-mono font-medium hover:underline"
+              >
+                support@puretoolhub.com
+              </a>
             </div>
           </>
         )}

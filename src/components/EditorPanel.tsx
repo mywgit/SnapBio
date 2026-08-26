@@ -21,6 +21,7 @@ import {
   RefreshCw,
   Globe,
   Check,
+  Mail,
 } from "lucide-react";
 import { useBio } from "@/context/BioContext";
 import { THEMES } from "@/lib/themes";
@@ -446,6 +447,19 @@ export function EditorPanel() {
                         <span>{lang === "zh" ? "检测状态" : "Check Status"}</span>
                       </button>
                     </div>
+
+                    <p className="text-[10px] text-slate-400 pt-1.5 border-t border-slate-800/80 flex items-center gap-1.5">
+                      <Mail className="w-3 h-3 text-blue-400 shrink-0" />
+                      <span>
+                        {lang === "zh" ? "遇到解析疑问？联系支持：" : "Need DNS assistance? Email:"}{" "}
+                        <a
+                          href="mailto:support@puretoolhub.com"
+                          className="text-blue-400 hover:text-blue-300 font-mono font-medium hover:underline"
+                        >
+                          support@puretoolhub.com
+                        </a>
+                      </span>
+                    </p>
                   </div>
                 )}
               </div>

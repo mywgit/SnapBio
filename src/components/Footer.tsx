@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Zap, ShieldCheck, Coffee, Sparkles, ExternalLink } from "lucide-react";
+import { Zap, ShieldCheck, Coffee, Sparkles, ExternalLink, Mail } from "lucide-react";
 import { useBio } from "@/context/BioContext";
 import { usePathname } from "next/navigation";
 
@@ -47,9 +47,21 @@ export function Footer() {
               ? "100% 免费的 Notion 风格创作者多合一链接与个人主页生成器。无需注册、即刻生成、极速加载。"
               : "100% Free Notion-style creator link-in-bio platform. Instant in-browser customization, zero ads bloat, sub-second performance."}
           </p>
-          <div className="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
-            <ShieldCheck className="w-4 h-4" />
-            <span>{isZh ? "100% 浏览器本地存储与隐私保护" : "100% In-Browser Privacy & Local Storage"}</span>
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
+              <ShieldCheck className="w-4 h-4" />
+              <span>{isZh ? "100% 浏览器本地存储与隐私保护" : "100% In-Browser Privacy & Local Storage"}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-300 font-medium text-[11px]">
+              <Mail className="w-4 h-4 text-blue-400" />
+              <span>{isZh ? "官方支持：" : "Support:"}</span>
+              <a
+                href="mailto:support@puretoolhub.com"
+                className="text-blue-400 hover:text-blue-300 font-mono hover:underline"
+              >
+                support@puretoolhub.com
+              </a>
+            </div>
           </div>
         </div>
 

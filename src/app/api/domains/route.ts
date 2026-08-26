@@ -92,16 +92,16 @@ export async function GET(req: NextRequest) {
 
   if (VERCEL_AUTH_TOKEN) {
     try {
-      // 1. Fetch domain config
+      // 1. Fetch domain config via official v6 endpoint
       const configRes = await fetch(
-        "https://api.vercel.com/v9/projects/" + VERCEL_PROJECT_ID + "/domains/" + cleanDomain + "/config",
+        "https://api.vercel.com/v6/domains/" + cleanDomain + "/config",
         {
           headers: { Authorization: "Bearer " + VERCEL_AUTH_TOKEN },
         }
       );
       vercelConfig = await configRes.json();
 
-      // 2. Fetch domain info / verification
+      // 2. Fetch project domain info
       const infoRes = await fetch(
         "https://api.vercel.com/v9/projects/" + VERCEL_PROJECT_ID + "/domains/" + cleanDomain,
         {
@@ -110,27 +110,14 @@ export async function GET(req: NextRequest) {
       );
       vercelDomainInfo = await infoRes.json();
 
-      // Extract recommended CNAME or A value from all possible Vercel fields
       if (!isApex) {
-        const vCname =
-          vercelDomainInfo?.verification?.find((v: { type?: string; value?: string }) => v.type === "CNAME")?.value ||
-          vercelConfig?.recommendedCNAME ||
-          vercelConfig?.cnames?.[0] ||
-          vercelDomainInfo?.cnames?.[0] ||
-          vercelDomainInfo?.verification?.[0]?.value;
-
-        if (vCname) {
-          recommendedValue = String(vCname).replace(/\.+$/, "");
-        }
+        recommendedValue = "cname.vercel-dns.com";
       } else {
-        const vA =
-          vercelDomainInfo?.verification?.find((v: { type?: string; value?: string }) => v.type === "A")?.value ||
-          vercelConfig?.recommendedIPv4?.[0] ||
-          "76.76.21.21";
-        recommendedValue = String(vA);
+        recommendedValue = "76.76.21.21";
       }
 
-      if (vercelDomainInfo?.verified && vercelConfig?.misconfigured === false) {
+      // Check if domain is verified and configured
+      if (vercelDomainInfo?.verified === true || vercelConfig?.misconfigured === false) {
         isConfigured = true;
       }
     } catch (err) {

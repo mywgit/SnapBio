@@ -11,11 +11,19 @@ import { TemplatesModal } from "./TemplatesModal";
 import { AuthModal } from "./AuthModal";
 import { User, LogOut } from "lucide-react";
 
+import { usePathname } from "next/navigation";
+
 export function Header() {
+  const pathname = usePathname();
   const { t, isPro, user, isAuthModalOpen, setIsAuthModalOpen, signOut, lang } = useBio();
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isProOpen, setIsProOpen] = useState(false);
   const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+
+  // Do not render Header on public creator profile pages or custom domains
+  if (pathname.startsWith("/p")) {
+    return null;
+  }
 
   return (
     <>

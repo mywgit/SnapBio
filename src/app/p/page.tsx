@@ -8,6 +8,8 @@ import { UserProfile } from "@/lib/types";
 
 import { supabase } from "@/lib/supabaseClient";
 
+import { getTheme } from "@/lib/themes";
+
 function PublicBioContent() {
   const searchParams = useSearchParams();
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
@@ -55,8 +57,16 @@ function PublicBioContent() {
     }
   }, [searchParams]);
 
+  const theme = getTheme(profile.themeId);
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center">
+    <div
+      className="min-h-screen w-full flex items-center justify-center transition-colors duration-300"
+      style={{
+        backgroundColor: theme.bgPage,
+        backgroundImage: theme.bgGradient,
+      }}
+    >
       <div className="w-full max-w-lg min-h-screen flex flex-col justify-between shadow-2xl">
         <BioRenderer profile={profile} isPublic={true} />
       </div>

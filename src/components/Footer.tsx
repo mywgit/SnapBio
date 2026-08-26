@@ -4,10 +4,17 @@ import React from "react";
 import Link from "next/link";
 import { Zap, ShieldCheck, Coffee, Sparkles, ExternalLink } from "lucide-react";
 import { useBio } from "@/context/BioContext";
+import { usePathname } from "next/navigation";
 
 export function Footer() {
+  const pathname = usePathname();
   const { lang } = useBio();
   const isZh = lang === "zh";
+
+  // Do not render Footer on public creator profile pages or custom domains
+  if (pathname.startsWith("/p")) {
+    return null;
+  }
 
   return (
     <footer className="mt-20 border-t border-slate-800 bg-slate-950/90 py-12 text-slate-400 text-xs">

@@ -110,11 +110,24 @@ export async function GET(req: NextRequest) {
       );
       vercelDomainInfo = await infoRes.json();
 
-      // Extract recommended CNAME value if present
-      if (vercelDomainInfo?.verification?.[0]?.value) {
-        recommendedValue = vercelDomainInfo.verification[0].value;
-      } else if (vercelDomainInfo?.cnames?.[0]) {
-        recommendedValue = vercelDomainInfo.cnames[0];
+      // Extract recommended CNAME or A value from all possible Vercel fields
+      if (!isApex) {
+        const vCname =
+          vercelDomainInfo?.verification?.find((v: { type?: string; value?: string }) => v.type === "CNAME")?.value ||
+          vercelConfig?.recommendedCNAME ||
+          vercelConfig?.cnames?.[0] ||
+          vercelDomainInfo?.cnames?.[0] ||
+          vercelDomainInfo?.verification?.[0]?.value;
+
+        if (vCname) {
+          recommendedValue = String(vCname).replace(/\.+$/, "");
+        }
+      } else {
+        const vA =
+          vercelDomainInfo?.verification?.find((v: { type?: string; value?: string }) => v.type === "A")?.value ||
+          vercelConfig?.recommendedIPv4?.[0] ||
+          "76.76.21.21";
+        recommendedValue = String(vA);
       }
 
       if (vercelDomainInfo?.verified && vercelConfig?.misconfigured === false) {

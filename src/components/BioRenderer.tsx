@@ -6,6 +6,7 @@ import { CheckCircle2, ExternalLink, Coffee, MapPin, Sparkles } from "lucide-rea
 import { UserProfile, ThemeConfig, BioBlock } from "@/lib/types";
 import { getTheme } from "@/lib/themes";
 import { SocialIcon } from "./SocialIcons";
+import { useBio } from "@/context/BioContext";
 
 interface BioRendererProps {
   profile: UserProfile;
@@ -13,7 +14,13 @@ interface BioRendererProps {
 }
 
 export function BioRenderer({ profile, isPublic = false }: BioRendererProps) {
+  const { isPro: globalIsPro } = useBio();
   const theme: ThemeConfig = getTheme(profile.themeId);
+
+  // Watermark is only hidden for verified Pro users
+  const shouldHideWatermark = isPublic
+    ? Boolean(profile.removeWatermark)
+    : Boolean(globalIsPro && profile.removeWatermark);
 
   return (
     <div
@@ -215,7 +222,7 @@ export function BioRenderer({ profile, isPublic = false }: BioRendererProps) {
       </div>
 
       {/* Viral Watermark Loop (Shown for Free users, Hidden only for Pro users) */}
-      {!profile.removeWatermark && (
+      {!shouldHideWatermark && (
         <div className="pt-8 pb-8 flex justify-center">
           <a
             href={isPublic ? "https://bio.puretoolhub.com" : "/"}

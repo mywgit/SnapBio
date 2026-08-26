@@ -92,6 +92,7 @@ export function BioProvider({ children }: { children: React.ReactNode }) {
       } else {
         setIsPro(false);
         setProEmail(undefined);
+        setProfile((prev) => ({ ...prev, removeWatermark: false }));
       }
     });
 
@@ -103,6 +104,7 @@ export function BioProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         setIsPro(false);
         setProEmail(undefined);
+        setProfile((prev) => ({ ...prev, removeWatermark: false }));
       }
     });
 
@@ -163,6 +165,10 @@ export function BioProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setIsPro(false);
+    setProEmail(undefined);
+    localStorage.removeItem(PRO_STORAGE_KEY);
+    setProfile((prev) => ({ ...prev, removeWatermark: false }));
   };
 
   // Save to LocalStorage whenever profile changes
@@ -187,7 +193,14 @@ export function BioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateProfile = (updates: Partial<UserProfile>) => {
-    setProfile((prev) => ({ ...prev, ...updates }));
+    setProfile((prev) => {
+      const sanitizedUpdates = { ...updates };
+      // If user is not Pro, prevent setting removeWatermark
+      if (!isPro && sanitizedUpdates.removeWatermark !== undefined) {
+        sanitizedUpdates.removeWatermark = false;
+      }
+      return { ...prev, ...sanitizedUpdates };
+    });
   };
 
   const setThemeId = (themeId: string) => {

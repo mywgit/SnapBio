@@ -214,21 +214,21 @@ export function BioRenderer({ profile, isPublic = false }: BioRendererProps) {
         </div>
       </div>
 
-      {/* Viral Watermark Loop (Hidden for Pro / White-label users) */}
-      {!profile.removeWatermark && !profile.customDomain && (
-        <div className="pt-8 pb-4">
+      {/* Viral Watermark Loop (Shown for Free users, Hidden only for Pro users) */}
+      {!profile.removeWatermark && (
+        <div className="pt-8 pb-8 flex justify-center">
           <a
             href={isPublic ? "https://bio.puretoolhub.com" : "/"}
             target={isPublic ? "_blank" : undefined}
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border backdrop-blur-md opacity-75 hover:opacity-100 hover:scale-105"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold transition-all border backdrop-blur-md opacity-85 hover:opacity-100 hover:scale-105 shadow-sm"
             style={{
               backgroundColor: theme.cardBg,
               borderColor: theme.cardBorder,
               color: theme.textColor,
             }}
           >
-            <span>⚡ Powered by <strong>SnapBio</strong> (Free)</span>
+            <span>⚡ Powered by <strong>SnapBio</strong> (100% Free)</span>
           </a>
         </div>
       )}

@@ -16,7 +16,19 @@ function PublicBioContent() {
 
   useEffect(() => {
     const u = searchParams.get("u");
-    const domain = searchParams.get("domain");
+    let domain = searchParams.get("domain");
+
+    if (!domain && typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      const isMain =
+        host === "bio.puretoolhub.com" ||
+        host === "localhost" ||
+        host.includes("127.0.0.1") ||
+        host.endsWith("vercel.app");
+      if (!isMain) {
+        domain = host;
+      }
+    }
 
     if (u || domain) {
       let query = supabase.from("profiles").select("*");

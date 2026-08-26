@@ -12,6 +12,7 @@ import { AuthModal } from "./AuthModal";
 import { User, LogOut } from "lucide-react";
 
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 export function Header() {
   const pathname = usePathname();
@@ -19,9 +20,24 @@ export function Header() {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isProOpen, setIsProOpen] = useState(false);
   const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+  const [isCustomDomain, setIsCustomDomain] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      const isMain =
+        host === "bio.puretoolhub.com" ||
+        host === "localhost" ||
+        host.includes("127.0.0.1") ||
+        host.endsWith("vercel.app");
+      if (!isMain) {
+        setIsCustomDomain(true);
+      }
+    }
+  }, []);
 
   // Do not render Header on public creator profile pages or custom domains
-  if (pathname.startsWith("/p")) {
+  if (pathname.startsWith("/p") || isCustomDomain) {
     return null;
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Zap, ShieldCheck, Coffee, Sparkles, ExternalLink } from "lucide-react";
 import { useBio } from "@/context/BioContext";
@@ -10,9 +10,24 @@ export function Footer() {
   const pathname = usePathname();
   const { lang } = useBio();
   const isZh = lang === "zh";
+  const [isCustomDomain, setIsCustomDomain] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      const isMain =
+        host === "bio.puretoolhub.com" ||
+        host === "localhost" ||
+        host.includes("127.0.0.1") ||
+        host.endsWith("vercel.app");
+      if (!isMain) {
+        setIsCustomDomain(true);
+      }
+    }
+  }, []);
 
   // Do not render Footer on public creator profile pages or custom domains
-  if (pathname.startsWith("/p")) {
+  if (pathname.startsWith("/p") || isCustomDomain) {
     return null;
   }
 

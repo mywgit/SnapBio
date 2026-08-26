@@ -1,16 +1,36 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sparkles, Smartphone, Edit3, Share2, Layers, Zap } from "lucide-react";
 import { useBio } from "@/context/BioContext";
 import { EditorPanel } from "@/components/EditorPanel";
 import { PhoneMockup } from "@/components/PhoneMockup";
 import { ShareModal } from "@/components/ShareModal";
+import PublicBioPage from "./p/page";
 
 export default function HomePage() {
   const { t, lang } = useBio();
   const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isCustomDomain, setIsCustomDomain] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      const isMain =
+        host === "bio.puretoolhub.com" ||
+        host === "localhost" ||
+        host.includes("127.0.0.1") ||
+        host.endsWith("vercel.app");
+      if (!isMain) {
+        setIsCustomDomain(true);
+      }
+    }
+  }, []);
+
+  if (isCustomDomain) {
+    return <PublicBioPage />;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8">

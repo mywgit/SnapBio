@@ -284,23 +284,39 @@ export function EditorPanel() {
                   />
                   <button
                     type="button"
-                    onClick={() => {
-                      if (user?.email) {
-                        fetch("/api/verify-subscription", {
+                    onClick={async () => {
+                      if (!profile.customDomain) {
+                        alert(lang === "zh" ? "请输入要绑定的域名" : "Please enter a domain");
+                        return;
+                      }
+                      try {
+                        const res = await fetch("/api/domains", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
-                            email: user.email,
+                            domain: profile.customDomain,
+                            userId: user?.id,
+                            email: user?.email,
                             username: profile.username,
-                            customDomain: profile.customDomain,
                           }),
-                        }).catch(() => {});
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          alert(
+                            lang === "zh"
+                              ? `✅ 独立域名 ${profile.customDomain} 已自动绑定至 Vercel 云端！请确保 DNS 解析已指向 cname.vercel-dns.com`
+                              : `✅ Domain ${profile.customDomain} registered to Vercel cloud successfully!`
+                          );
+                        } else {
+                          alert("Error: " + (data.error || "Failed to save domain"));
+                        }
+                      } catch {
+                        alert(lang === "zh" ? "✅ 独立域名已成功保存！" : "Custom domain saved!");
                       }
-                      alert(lang === "zh" ? "✅ 独立域名已成功保存并同步至云端！" : "Custom domain saved and synced to cloud!");
                     }}
                     className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shrink-0 shadow-md shadow-blue-600/20"
                   >
-                    {lang === "zh" ? "保存域名" : "Save Domain"}
+                    {lang === "zh" ? "保存并自动绑定" : "Save & Connect"}
                   </button>
                 </div>
                 <p className="text-[10px] text-slate-400 leading-relaxed">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User,
   Link as LinkIcon,
@@ -16,8 +16,11 @@ import {
   Video,
   ExternalLink,
   Layers,
-  MapPin,
   Upload,
+  Copy,
+  RefreshCw,
+  Globe,
+  Check,
 } from "lucide-react";
 import { useBio } from "@/context/BioContext";
 import { THEMES } from "@/lib/themes";
@@ -43,6 +46,73 @@ export function EditorPanel() {
   } = useBio();
 
   const [activeTab, setActiveTab] = useState<"profile" | "links" | "themes" | "social">("profile");
+
+  const [isSavingDomain, setIsSavingDomain] = useState(false);
+  const [isCheckingDns, setIsCheckingDns] = useState(false);
+  const [copiedDns, setCopiedDns] = useState(false);
+  const [dnsInfo, setDnsInfo] = useState<{
+    recordType: string;
+    recordName: string;
+    recommendedValue: string;
+    isConfigured: boolean;
+  } | null>(null);
+
+  const checkDnsStatus = async (domain: string) => {
+    if (!domain) return;
+    setIsCheckingDns(true);
+    try {
+      const res = await fetch(`/api/domains?domain=${encodeURIComponent(domain)}`);
+      const data = await res.json();
+      if (data.recordType && data.recommendedValue) {
+        setDnsInfo({
+          recordType: data.recordType,
+          recordName: data.recordName,
+          recommendedValue: data.recommendedValue,
+          isConfigured: Boolean(data.isConfigured),
+        });
+      }
+    } catch {
+      // Ignore
+    } finally {
+      setIsCheckingDns(false);
+    }
+  };
+
+  useEffect(() => {
+    if (profile.customDomain) {
+      checkDnsStatus(profile.customDomain);
+    }
+  }, [profile.customDomain]);
+
+  const handleSaveAndConnectDomain = async () => {
+    if (!profile.customDomain) {
+      alert(lang === "zh" ? "请输入要绑定的域名" : "Please enter a domain");
+      return;
+    }
+    setIsSavingDomain(true);
+    try {
+      const res = await fetch("/api/domains", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          domain: profile.customDomain,
+          userId: user?.id,
+          email: user?.email,
+          username: profile.username,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        await checkDnsStatus(profile.customDomain);
+      } else {
+        alert("Error: " + (data.error || "Failed to register domain"));
+      }
+    } catch {
+      // Fallback
+    } finally {
+      setIsSavingDomain(false);
+    }
+  };
 
   const avatarPresets = [
     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
@@ -265,65 +335,119 @@ export function EditorPanel() {
               />
             </div>
 
-            {/* Pro Feature 2: Custom Domain Connection */}
+            {/* Pro Feature 2: Custom Domain Connection & Self-Service DNS Card */}
             {isPro && (
-              <div className="p-4 rounded-2xl bg-slate-950 border border-blue-500/30 space-y-3">
+              <div className="p-4 rounded-2xl bg-slate-950 border border-blue-500/30 space-y-3.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <span>🌐 {lang === "zh" ? "绑定个人顶级独立域名" : "Connect Custom Domain"}</span>
+                    <Globe className="w-3.5 h-3.5 text-blue-400" />
+                    <span>{lang === "zh" ? "绑定个人顶级独立域名" : "Connect Custom Domain"}</span>
                     <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-blue-500 text-white">PRO</span>
                   </span>
                 </div>
+
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
                     value={profile.customDomain || ""}
                     onChange={(e) => updateProfile({ customDomain: e.target.value.toLowerCase().trim() })}
                     placeholder="e.g. bio.yourname.com"
-                    className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-blue-400 font-mono text-[11px] focus:outline-none focus:border-blue-500"
+                    className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-blue-400 font-mono text-[11px] focus:outline-none focus:border-blue-500"
                   />
                   <button
                     type="button"
-                    onClick={async () => {
-                      if (!profile.customDomain) {
-                        alert(lang === "zh" ? "请输入要绑定的域名" : "Please enter a domain");
-                        return;
-                      }
-                      try {
-                        const res = await fetch("/api/domains", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            domain: profile.customDomain,
-                            userId: user?.id,
-                            email: user?.email,
-                            username: profile.username,
-                          }),
-                        });
-                        const data = await res.json();
-                        if (data.success) {
-                          alert(
-                            lang === "zh"
-                              ? `✅ 独立域名 ${profile.customDomain} 已自动绑定至 Vercel 云端！请确保 DNS 解析已指向 cname.vercel-dns.com`
-                              : `✅ Domain ${profile.customDomain} registered to Vercel cloud successfully!`
-                          );
-                        } else {
-                          alert("Error: " + (data.error || "Failed to save domain"));
-                        }
-                      } catch {
-                        alert(lang === "zh" ? "✅ 独立域名已成功保存！" : "Custom domain saved!");
-                      }
-                    }}
-                    className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shrink-0 shadow-md shadow-blue-600/20"
+                    disabled={isSavingDomain}
+                    onClick={handleSaveAndConnectDomain}
+                    className="px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-bold transition-all shrink-0 shadow-md shadow-blue-600/20 flex items-center gap-1.5"
                   >
-                    {lang === "zh" ? "保存并自动绑定" : "Save & Connect"}
+                    {isSavingDomain ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : null}
+                    <span>{lang === "zh" ? "保存并自动绑定" : "Save & Connect"}</span>
                   </button>
                 </div>
-                <p className="text-[10px] text-slate-400 leading-relaxed">
-                  {lang === "zh"
-                    ? "💡 解析方法：在您的域名 DNS 控制台添加一条 CNAME 记录，指向 cname.vercel-dns.com 即可！"
-                    : "DNS Setup: Add a CNAME record pointing to cname.vercel-dns.com"}
-                </p>
+
+                {/* Self-Service DNS Configuration Table */}
+                {dnsInfo && (
+                  <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-300">
+                        {lang === "zh" ? "📋 您的专属 DNS 解析配置表" : "Your DNS Configuration"}
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          dnsInfo.isConfigured
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                            : "bg-amber-500/10 text-amber-400 border border-amber-500/30"
+                        }`}
+                      >
+                        {dnsInfo.isConfigured ? (
+                          <>
+                            <CheckCircle2 className="w-3 h-3" />
+                            {lang === "zh" ? "已全网生效" : "Active & SSL Valid"}
+                          </>
+                        ) : (
+                          <>
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            {lang === "zh" ? "等待 DNS 解析生效" : "Pending DNS Verification"}
+                          </>
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-[11px] font-mono border-collapse">
+                        <thead>
+                          <tr className="border-b border-slate-800 text-slate-400 text-[10px]">
+                            <th className="pb-1.5 font-bold">Type</th>
+                            <th className="pb-1.5 font-bold">Name (主机记录)</th>
+                            <th className="pb-1.5 font-bold">Value (记录值)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="text-slate-200 divide-y divide-slate-800/50">
+                          <tr>
+                            <td className="py-2 font-bold text-blue-400">{dnsInfo.recordType}</td>
+                            <td className="py-2 text-purple-300 font-bold">{dnsInfo.recordName}</td>
+                            <td className="py-2 text-slate-300">
+                              <div className="flex items-center gap-1.5">
+                                <span className="bg-slate-950 px-2 py-1 rounded-md text-[10px] select-all border border-slate-800 break-all">
+                                  {dnsInfo.recommendedValue}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(dnsInfo.recommendedValue);
+                                    setCopiedDns(true);
+                                    setTimeout(() => setCopiedDns(false), 2000);
+                                  }}
+                                  className="p-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors shrink-0"
+                                  title="Copy"
+                                >
+                                  {copiedDns ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <p className="text-[10px] text-slate-400">
+                        {lang === "zh"
+                          ? "去您的域名 DNS 后台（如 Cloudflare / 阿里云）添加上述记录即可"
+                          : "Add the record above at your DNS provider."}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => checkDnsStatus(profile.customDomain || "")}
+                        disabled={isCheckingDns}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold transition-all shrink-0"
+                      >
+                        <RefreshCw className={`w-3 h-3 ${isCheckingDns ? "animate-spin text-blue-400" : ""}`} />
+                        <span>{lang === "zh" ? "检测状态" : "Check Status"}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseServer";
 
 const VERCEL_AUTH_TOKEN = process.env.VERCEL_AUTH_TOKEN;
@@ -77,27 +77,62 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing domain" }, { status: 400 });
   }
 
-  const cleanDomain = domain.toLowerCase().trim();
+  const cleanDomain = domain.toLowerCase().trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+
+  // Determine if subdomain or apex
+  const parts = cleanDomain.split(".");
+  const isApex = parts.length <= 2;
+  const recordName = isApex ? "@" : parts[0];
+  const recordType = isApex ? "A" : "CNAME";
 
   let vercelConfig = null;
+  let vercelDomainInfo = null;
+  let recommendedValue = isApex ? "76.76.21.21" : "cname.vercel-dns.com";
+  let isConfigured = false;
+
   if (VERCEL_AUTH_TOKEN) {
     try {
-      const res = await fetch(
+      // 1. Fetch domain config
+      const configRes = await fetch(
         "https://api.vercel.com/v9/projects/" + VERCEL_PROJECT_ID + "/domains/" + cleanDomain + "/config",
         {
-          headers: {
-            Authorization: "Bearer " + VERCEL_AUTH_TOKEN,
-          },
+          headers: { Authorization: "Bearer " + VERCEL_AUTH_TOKEN },
         }
       );
-      vercelConfig = await res.json();
-    } catch {
-      // Ignore
+      vercelConfig = await configRes.json();
+
+      // 2. Fetch domain info / verification
+      const infoRes = await fetch(
+        "https://api.vercel.com/v9/projects/" + VERCEL_PROJECT_ID + "/domains/" + cleanDomain,
+        {
+          headers: { Authorization: "Bearer " + VERCEL_AUTH_TOKEN },
+        }
+      );
+      vercelDomainInfo = await infoRes.json();
+
+      // Extract recommended CNAME value if present
+      if (vercelDomainInfo?.verification?.[0]?.value) {
+        recommendedValue = vercelDomainInfo.verification[0].value;
+      } else if (vercelDomainInfo?.cnames?.[0]) {
+        recommendedValue = vercelDomainInfo.cnames[0];
+      }
+
+      if (vercelDomainInfo?.verified && vercelConfig?.misconfigured === false) {
+        isConfigured = true;
+      }
+    } catch (err) {
+      console.error("Vercel config fetch error:", err);
     }
   }
 
   return NextResponse.json({
     domain: cleanDomain,
+    isApex,
+    recordType,
+    recordName,
+    recommendedValue,
+    isConfigured,
     vercelConfig,
+    vercelDomainInfo,
   });
 }

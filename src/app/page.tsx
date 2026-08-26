@@ -6,6 +6,8 @@ import { useBio } from "@/context/BioContext";
 import { EditorPanel } from "@/components/EditorPanel";
 import { PhoneMockup } from "@/components/PhoneMockup";
 import { ShareModal } from "@/components/ShareModal";
+import { StructuredData } from "@/components/StructuredData";
+import { SeoEditorial } from "@/components/SeoEditorial";
 import PublicBioPage from "./p/page";
 
 export default function HomePage() {
@@ -34,6 +36,8 @@ export default function HomePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8">
+      <StructuredData />
+
       {/* Mobile Tab Switcher (Visible only on < lg screens) */}
       <div className="lg:hidden flex items-center justify-center">
         <div className="grid grid-cols-2 p-1 bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs shadow-lg">
@@ -97,6 +101,9 @@ export default function HomePage() {
           <PhoneMockup onOpenShare={() => setIsShareOpen(true)} />
         </div>
       </div>
+
+      {/* Rich SEO Editorial Section for Google Crawlers & Visitors */}
+      <SeoEditorial />
 
       <ShareModal isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} />
     </div>

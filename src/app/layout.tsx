@@ -3,6 +3,7 @@ import "./globals.css";
 import { BioProvider } from "@/context/BioContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Analytics } from "@/components/Analytics";
 
 export const metadata: Metadata = {
   title: "SnapBio - 100% Free Notion-Style Link-in-Bio & Creator Hub (2026)",
@@ -48,6 +49,7 @@ export default function RootLayout({
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <Analytics />
         </BioProvider>
       </body>
     </html>

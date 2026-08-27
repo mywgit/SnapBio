@@ -61,6 +61,40 @@ export function Header() {
             </div>
           </Link>
 
+          {/* Center Navigation: Free Viral Tools */}
+          <nav className="hidden xl:flex items-center gap-1">
+            <Link
+              href="/instagram-font-generator"
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                pathname === "/instagram-font-generator"
+                  ? "bg-pink-500/20 text-pink-300 border border-pink-500/40"
+                  : "text-slate-300 hover:text-white hover:bg-slate-900"
+              }`}
+            >
+              ✨ {lang === "zh" ? "网红花体字" : "Font Generator"}
+            </Link>
+            <Link
+              href="/bio-generator"
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                pathname === "/bio-generator"
+                  ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40"
+                  : "text-slate-300 hover:text-white hover:bg-slate-900"
+              }`}
+            >
+              💡 {lang === "zh" ? "爆款 Bio 文案" : "Bio Generator"}
+            </Link>
+            <Link
+              href="/linktree-alternative"
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                pathname.includes("alternative")
+                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                  : "text-slate-300 hover:text-white hover:bg-slate-900"
+              }`}
+            >
+              ⚡ {lang === "zh" ? "对比 Linktree" : "vs Linktree"}
+            </Link>
+          </nav>
+
           {/* Action Buttons */}
           <div className="flex items-center gap-2.5">
             {/* Contact Support */}

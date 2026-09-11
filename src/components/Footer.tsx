@@ -108,6 +108,35 @@ export function Footer() {
           </ul>
         </div>
 
+        {/* Alternatives Column */}
+        <div className="space-y-2">
+          <span className="font-bold text-white uppercase tracking-wider block">
+            {isZh ? "产品对比与免费工具" : "Alternatives & Tools"}
+          </span>
+          <ul className="space-y-1.5 text-slate-300">
+            <li>
+              <Link href="/beacons-ai-alternative" className="hover:text-blue-400 transition-colors">
+                {isZh ? "Beacons.ai 替代方案" : "Beacons.ai Alternative"}
+              </Link>
+            </li>
+            <li>
+              <Link href="/linktree-alternative" className="hover:text-blue-400 transition-colors">
+                {isZh ? "Linktree 替代方案" : "Linktree Alternative"}
+              </Link>
+            </li>
+            <li>
+              <Link href="/bento-me-alternative" className="hover:text-blue-400 transition-colors">
+                {isZh ? "Bento.me 替代方案" : "Bento.me Alternative"}
+              </Link>
+            </li>
+            <li>
+              <Link href="/bio-generator" className="hover:text-blue-400 transition-colors">
+                {isZh ? "TikTok & IG 简介生成器" : "TikTok & IG Bio Generator"}
+              </Link>
+            </li>
+          </ul>
+        </div>
+
         {/* Cross-Link Column 2: ToolHub */}
         <div className="space-y-2">
           <span className="font-bold text-white uppercase tracking-wider block">
@@ -116,7 +145,7 @@ export function Footer() {
           <ul className="space-y-1.5 text-slate-300">
             <li>
               <a
-                href="https://tool.lehuoliaoyu.com/json-formatter"
+                href="https://tool.puretoolhub.com/json-formatter"
                 target="_blank"
                 rel="noopener"
                 className="hover:text-blue-400 transition-colors flex items-center gap-1"
@@ -127,7 +156,7 @@ export function Footer() {
             </li>
             <li>
               <a
-                href="https://tool.lehuoliaoyu.com/jwt-debugger"
+                href="https://tool.puretoolhub.com/jwt-debugger"
                 target="_blank"
                 rel="noopener"
                 className="hover:text-blue-400 transition-colors flex items-center gap-1"
@@ -138,7 +167,7 @@ export function Footer() {
             </li>
             <li>
               <a
-                href="https://tool.lehuoliaoyu.com"
+                href="https://tool.puretoolhub.com"
                 target="_blank"
                 rel="noopener"
                 className="text-blue-400 font-bold hover:underline flex items-center gap-1"
@@ -154,7 +183,7 @@ export function Footer() {
         <p>© {new Date().getFullYear()} SnapBio. Powered by PureToolHub Network. 100% Free.</p>
         <div className="flex items-center gap-4">
           <a href="https://calc.puretoolhub.com" className="hover:text-slate-400 transition-colors">CalcHub</a>
-          <a href="https://tool.lehuoliaoyu.com" className="hover:text-slate-400 transition-colors">ToolHub</a>
+          <a href="https://tool.puretoolhub.com" className="hover:text-slate-400 transition-colors">ToolHub</a>
         </div>
       </div>
     </footer>

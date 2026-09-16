@@ -1,0 +1,17 @@
+﻿name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Runs every 3 days at 04:00 UTC
+    - cron: '0 4 */3 * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping SnapBio Supabase Database
+        run: |
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -H "apikey: sb_publishable_HmYErlaENCD66moywDrCeg_ywLYoY__" "https://uegklsvwjplsjbupafwl.supabase.co/rest/v1/profiles?select=count")
+          echo "$response"
+          echo "Successfully kept Supabase database active."

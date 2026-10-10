@@ -4,6 +4,7 @@ import { BioProvider } from "@/context/BioContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Analytics } from "@/components/Analytics";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
   title: "SnapBio - 100% Free Notion-Style Link-in-Bio & Creator Hub (2026)",
@@ -11,17 +12,7 @@ export const metadata: Metadata = {
     "Create a beautiful, high-converting Notion-style link-in-bio page in 30 seconds. Zero ads, instant real-time mobile preview, 8 premium themes, custom domains, and 100% free.",
   metadataBase: new URL("https://bio.puretoolhub.com"),
   alternates: {
-    canonical: "https://bio.puretoolhub.com",
-    languages: {
-      "en-US": "https://bio.puretoolhub.com",
-      "es-ES": "https://bio.puretoolhub.com",
-      "pt-BR": "https://bio.puretoolhub.com",
-      "de-DE": "https://bio.puretoolhub.com",
-      "fr-FR": "https://bio.puretoolhub.com",
-      "ja-JP": "https://bio.puretoolhub.com",
-      "zh-CN": "https://bio.puretoolhub.com",
-      "x-default": "https://bio.puretoolhub.com",
-    },
+    canonical: "/",
   },
   openGraph: {
     title: "SnapBio - 100% Free Notion-Style Link-in-Bio",
@@ -44,6 +35,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <JsonLd />
+      </head>
       <body className="min-h-screen flex flex-col bg-[#070a13] text-slate-100 antialiased selection:bg-blue-600 selection:text-white">
         <BioProvider>
           <Header />

@@ -31,6 +31,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.95,
     },
     ...altEntries,
+    ...["/about", "/contact", "/privacy", "/terms"].map((path) => ({
+      url: `${baseUrl}${path}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
   ];
 }
 

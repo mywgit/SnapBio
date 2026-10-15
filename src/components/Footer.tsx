@@ -181,9 +181,21 @@ export function Footer() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500">
         <p>© {new Date().getFullYear()} SnapBio. Powered by PureToolHub Network. 100% Free.</p>
-        <div className="flex items-center gap-4">
-          <a href="https://calc.puretoolhub.com" className="hover:text-slate-400 transition-colors">CalcHub</a>
-          <a href="https://tool.puretoolhub.com" className="hover:text-slate-400 transition-colors">ToolHub</a>
+        <div className="flex flex-wrap items-center justify-center gap-5 text-xs text-slate-400">
+          <Link href="/about" className="hover:text-white transition-colors">
+            {isZh ? "关于我们" : "About Us"}
+          </Link>
+          <Link href="/contact" className="hover:text-white transition-colors">
+            {isZh ? "联系我们" : "Contact"}
+          </Link>
+          <Link href="/privacy" className="hover:text-white transition-colors">
+            {isZh ? "隐私政策" : "Privacy Policy"}
+          </Link>
+          <Link href="/terms" className="hover:text-white transition-colors">
+            {isZh ? "服务条款" : "Terms of Service"}
+          </Link>
+          <a href="https://calc.puretoolhub.com" className="hover:text-slate-300 transition-colors">CalcHub</a>
+          <a href="https://tool.puretoolhub.com" className="hover:text-slate-300 transition-colors">ToolHub</a>
         </div>
       </div>
     </footer>
